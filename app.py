@@ -1,7 +1,7 @@
 import datetime
 import os
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import mysql.connector
 from dotenv import load_dotenv
@@ -10,6 +10,16 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+
+@app.route('/')
+def pagina_inicial():
+    return send_from_directory(app.root_path, 'index.html')
+
+@app.route('/<path:nome_arquivo>')
+def arquivos_frontend(nome_arquivo):
+    if nome_arquivo in ('style.css', 'script.js'):
+        return send_from_directory(app.root_path, nome_arquivo)
+    return jsonify({'erro': 'Arquivo não encontrado.'}), 404
 
 # Configuração da conexão com o banco de dados
 def obter_conexao():
