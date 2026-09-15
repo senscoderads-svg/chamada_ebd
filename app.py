@@ -1,8 +1,12 @@
 import datetime
+import os
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -10,10 +14,11 @@ CORS(app)
 # Configuração da conexão com o banco de dados
 def obter_conexao():
     return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",  # !!! SUBSTITUA PELA SUA SENHA DO MYSQL !!!
-        database="PRESENCA_ALUNOS"
+        host=os.getenv("MYSQL_HOST", "127.0.0.1"),
+        port=int(os.getenv("MYSQL_PORT", "3306")),
+        user=os.getenv("MYSQL_USER", "root"),
+        password=os.getenv("MYSQL_PASSWORD", ""),
+        database=os.getenv("MYSQL_DATABASE", "PRESENCA_ALUNOS")
     )
 
 # ROTA GET: Busca o novo relatório resumido (Sua nova Query)
