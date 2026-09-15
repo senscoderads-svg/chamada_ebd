@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presença | Controle acadêmico</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="container">
+        <header class="topbar">
+            <div class="brand-lockup">
+                <div class="brand-mark">P</div>
+                <div>
+                    <p class="eyebrow">Painel acadêmico</p>
+                    <h1>Presença</h1>
+                </div>
+            </div>
+            <div class="connection-status"><span class="status-dot"></span> API conectada</div>
+        </header>
+
+        <section class="hero-panel">
+            <div>
+                <p class="eyebrow hero-eyebrow">Visão geral</p>
+                <h2>Acompanhe a rotina da sua turma.</h2>
+                <p class="hero-copy">Cadastre atividades e registre a chamada em poucos passos.</p>
+            </div>
+            <button class="btn-primary" type="button" onclick="abrirModal('modalPresenca')"><span>+</span> Lançar presença</button>
+        </section>
+
+        <section class="stats-grid" aria-label="Resumo do sistema">
+            <article class="stat-card"><span class="stat-label">Atividades</span><strong id="totalAtividades">--</strong><span class="stat-detail">cadastradas no sistema</span></article>
+            <article class="stat-card stat-card-green"><span class="stat-label">Presenças</span><strong id="totalPresentes">--</strong><span class="stat-detail">registros presentes</span></article>
+            <article class="stat-card stat-card-amber"><span class="stat-label">Última atualização</span><strong id="ultimaAtualizacao">--:--</strong><span class="stat-detail">dados em tempo real</span></article>
+        </section>
+
+        <section class="workspace-panel">
+            <div class="section-heading">
+                <div><p class="eyebrow">Ações rápidas</p><h2>Organize seus registros</h2></div>
+                <span class="shortcut-hint">Escolha uma ação para começar</span>
+            </div>
+            <div class="action-grid">
+                <button class="action-card" type="button" onclick="abrirModal('modalProfessor')"><span class="action-icon icon-blue">PR</span><span><strong>Novo professor</strong><small>Adicionar docente</small></span><b>→</b></button>
+                <button class="action-card" type="button" onclick="abrirModal('modalAluno')"><span class="action-icon icon-teal">AL</span><span><strong>Novo aluno</strong><small>Cadastrar estudante</small></span><b>→</b></button>
+                <button class="action-card" type="button" onclick="abrirModal('modalAtividade')"><span class="action-icon icon-coral">AT</span><span><strong>Nova atividade</strong><small>Criar aula ou evento</small></span><b>→</b></button>
+            </div>
+        </section>
+
+        <section class="panel-tabela">
+            <div class="section-heading table-heading"><div><p class="eyebrow">Registro recente</p><h2>Relatório de atividades</h2></div><button class="btn-refresh" type="button" onclick="carregarTabela()" title="Atualizar relatório">↻ <span>Atualizar</span></button></div>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>Data</th><th>Atividade</th><th>Status</th><th>Professor responsável</th><th>Alunos presentes</th><th>Presentes</th><th>Ausentes</th></tr></thead>
+                    <tbody id="corpoTabela"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="management-section">
+            <div class="section-heading"><div><p class="eyebrow">Base de dados</p><h2>Cadastros do sistema</h2></div><button class="btn-refresh" type="button" onclick="carregarCadastros()">↻ <span>Atualizar listas</span></button></div>
+            <div class="management-grid">
+                <article class="management-card"><div class="management-card-heading"><div><h3>Alunos</h3><span id="contadorAlunos">0 registros</span></div><button class="mini-add" type="button" onclick="abrirModal('modalAluno')">+</button></div><div class="list-scroll"><table><thead><tr><th>Nome</th><th>RGM</th><th></th></tr></thead><tbody id="listaAlunos"></tbody></table></div></article>
+                <article class="management-card"><div class="management-card-heading"><div><h3>Professores</h3><span id="contadorProfessores">0 registros</span></div><button class="mini-add" type="button" onclick="abrirModal('modalProfessor')">+</button></div><div class="list-scroll"><table><thead><tr><th>Nome</th><th>Idade</th><th></th></tr></thead><tbody id="listaProfessores"></tbody></table></div></article>
+                <article class="management-card"><div class="management-card-heading"><div><h3>Atividades</h3><span id="contadorAtividades">0 registros</span></div><button class="mini-add" type="button" onclick="abrirModal('modalAtividade')">+</button></div><div class="list-scroll"><table><thead><tr><th>Atividade</th><th>Status</th><th></th></tr></thead><tbody id="listaAtividades"></tbody></table></div></article>
+            </div>
+        </section>
+
+        <section class="management-section ranking-section">
+            <div class="section-heading"><div><p class="eyebrow">Atividades encerradas</p><h2>Ranking de participação</h2></div><button class="btn-refresh" type="button" onclick="carregarRanking()">↻ <span>Atualizar ranking</span></button></div>
+            <p class="section-note">Considera somente atividades encerradas, do início ao fim.</p>
+            <div class="table-responsive"><table><thead><tr><th>Posição</th><th>Aluno</th><th>Participações</th><th>Atividades encerradas</th><th>Aproveitamento</th></tr></thead><tbody id="rankingAlunos"></tbody></table></div>
+        </section>
+    </main>
+
+    <!-- Modal: cadastro de professor -->
+    <div id="modalProfessor" class="modal">
+        <div class="modal-content">
+            <button class="btn-fechar" type="button" aria-label="Fechar" onclick="fecharModal('modalProfessor')">&times;</button>
+            <h2>Novo Professor</h2>
+            <form id="formProfessor">
+                <div class="form-group">
+                    <label for="idProfessor">ID do professor</label>
+                    <input type="number" id="idProfessor" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="nomeProfessor">Nome completo</label>
+                    <input type="text" id="nomeProfessor" maxlength="100" autocomplete="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="dataNascimentoProfessor">Data de nascimento</label>
+                    <input type="date" id="dataNascimentoProfessor">
+                </div>
+                <button type="submit" class="btn-enviar">Salvar professor</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: cadastro de aluno -->
+    <div id="modalAluno" class="modal">
+        <div class="modal-content">
+            <button class="btn-fechar" type="button" aria-label="Fechar" onclick="fecharModal('modalAluno')">&times;</button>
+            <h2>Novo Aluno</h2>
+            <form id="formAluno">
+                <div class="form-group">
+                    <label for="idPessoa">ID da pessoa</label>
+                    <input type="number" id="idPessoa" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="idCadastro">ID do cadastro (RGM)</label>
+                    <input type="number" id="idCadastro" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="nomePessoa">Nome completo</label>
+                    <input type="text" id="nomePessoa" maxlength="100" autocomplete="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="dataNascimento">Data de nascimento</label>
+                    <input type="date" id="dataNascimento">
+                </div>
+                <button type="submit" class="btn-enviar">Salvar aluno</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalAlunoDetalhes" class="modal">
+        <div class="modal-content modal-detail-content">
+            <button class="btn-fechar" type="button" aria-label="Fechar" onclick="fecharModal('modalAlunoDetalhes')">&times;</button>
+            <div id="detalhesAluno"></div>
+        </div>
+    </div>
+
+    <div id="modalEdicao" class="modal">
+        <div class="modal-content">
+            <button class="btn-fechar" type="button" aria-label="Fechar" onclick="fecharModal('modalEdicao')">&times;</button>
+            <p class="eyebrow">Editar cadastro</p>
+            <h2 id="tituloEdicao">Editar nome</h2>
+            <form id="formEdicao">
+                <input type="hidden" id="edicaoTipo">
+                <input type="hidden" id="edicaoIdPrincipal">
+                <input type="hidden" id="edicaoIdCadastro">
+                <div class="form-group">
+                    <label for="nomeEdicao">Nome</label>
+                    <input type="text" id="nomeEdicao" maxlength="100" required>
+                </div>
+                <div class="form-group" id="campoNascimentoEdicao">
+                    <label for="dataNascimentoEdicao">Data de nascimento</label>
+                    <input type="date" id="dataNascimentoEdicao">
+                </div>
+                <div class="form-group" id="campoDataAtividadeEdicao">
+                    <label for="dataAtividadeEdicao">Data da atividade</label>
+                    <input type="date" id="dataAtividadeEdicao">
+                </div>
+                <div class="form-group" id="campoProfessorEdicao">
+                    <label for="professorEdicao">Professor responsável</label>
+                    <select id="professorEdicao"><option value="">Sem professor definido</option></select>
+                </div>
+                <div class="form-group" id="campoStatusEdicao">
+                    <label for="statusEdicao">Status da atividade</label>
+                    <select id="statusEdicao">
+                        <option value="Agendada">Agendada</option>
+                        <option value="Em andamento">Em andamento</option>
+                        <option value="Encerrada">Encerrada</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-enviar">Salvar alteração</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: cadastro de atividade -->
+    <div id="modalAtividade" class="modal">
+        <div class="modal-content">
+            <button class="btn-fechar" type="button" aria-label="Fechar" onclick="fecharModal('modalAtividade')">&times;</button>
+            <h2>Nova Atividade</h2>
+            <form id="formAtividade">
+                <div class="form-group">
+                    <label for="idAtividadeForm">ID da atividade</label>
+                    <input type="number" id="idAtividadeForm" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="dataAtividade">Data da atividade</label>
+                    <input type="date" id="dataAtividade" required>
+                </div>
+                <div class="form-group">
+                    <label for="tipoAtividade">Nome ou tipo</label>
+                    <input type="text" id="tipoAtividade" maxlength="100" placeholder="Ex.: Aula de Banco de Dados" required>
+                </div>
+                <div class="form-group">
+                    <label for="professorAtividade">Professor responsável</label>
+                    <select id="professorAtividade">
+                        <option value="">Sem professor definido</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-enviar">Salvar atividade</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: lançamento de presença -->
+    <div id="modalPresenca" class="modal">
+        <div class="modal-content">
+            <button class="btn-fechar" type="button" aria-label="Fechar" onclick="fecharModal('modalPresenca')">&times;</button>
+            <h2>Lançar Presença</h2>
+            <form id="formPresenca">
+                <div class="form-group">
+                    <label for="alunoPresenca">Aluno</label>
+                    <select id="alunoPresenca" required>
+                        <option value="">Selecione o aluno</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="atividadePresenca">Atividade</label>
+                    <select id="atividadePresenca" required>
+                        <option value="">Selecione a atividade</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="statusPresenca">Status da chamada</label>
+                    <select id="statusPresenca">
+                        <option value="Presente">Presente</option>
+                        <option value="Ausente">Ausente</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-enviar">Registrar presença</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="script.js"></script>
+</body>
+</html>
